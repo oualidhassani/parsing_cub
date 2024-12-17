@@ -1,16 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   utils_v0.c                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: aboudiba <aboudiba@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/08 13:32:50 by mel-rhay          #+#    #+#             */
-/*   Updated: 2024/11/14 19:48:48 by aboudiba         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#include "../Headers/Cub3D.h"
+#include "../lib.h"
 
 void	error_print(char *str, t_map *map)
 {
@@ -30,8 +18,8 @@ void	map_initializer(t_map *map)
 	map->ceiling_color = NULL;
 	map->map = NULL;
 	map->player.dir = 0;
-	map->player.pos_x = -1;
-	map->player.pos_y = -1;
+	map->player.p_x = -1;
+	map->player.p_y = -1;
 	map->floor_rgb.r = -1;
 	map->floor_rgb.g = -1;
 	map->floor_rgb.b = -1;
