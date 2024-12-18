@@ -11,43 +11,35 @@ SRC = \
 
 OBJ = $(SRC:.c=.o)
 
-MINILIBX_DIR = mlx
-MINILIBX = $(MINILIBX_DIR)/libmlx.a
 
 LIBFT_DIR = libft
 LIBFT = $(LIBFT_DIR)/libft.a
 
 CFLAGS = -Wall -Wextra -Werror
-LDFLAGS = -L$(MINILIBX_DIR) -lmlx -framework OpenGL -framework AppKit
 
 AR = ar rcs
+RM = rm  
 
 NAME = cub3D
 
 all : $(NAME)
 
-$(NAME): $(OBJ) $(LIBFT) $(MINILIBX)
-	@echo "compiling $(NAME)"
-	@$(CC) $(OBJ) $(LIBFT) $(LDFLAGS) -o $(NAME)
-	@sleep 1
-	@echo "$(NAME) compiled successfully."
-
 $(LIBFT):
 	@echo "compiling libft"
 	@$(MAKE) -C $(LIBFT_DIR)
 
-$(MINILIBX):
-	@echo "compiling minilibx"
-	@$(MAKE) -C $(MINILIBX_DIR)
+$(NAME): $(OBJ) $(LIBFT)
+	@echo "compiling $(NAME)"
+	@$(CC) $(OBJ) $(LIBFT) -Lmlx_linux -lmlx_Linux -L/usr/lib -Imlx_linux -lXext -lX11 -lm -lz -o $(NAME)
+	@sleep 1
+	@echo "$(NAME) compiled successfully."
 
 %.o: %.c
-	@$(CC) $(CFLAGS) -I$(MINILIBX_DIR) -c $< -o $@
+	@$(CC) $(CFLAGS) -I/usr/include -Imlx_linux -O3 -Imlx -c $< -o $@
 
 clean:
 	@echo cleaning object files ...
-	@$(RM) -f $(OBJ)
-	@$(MAKE) -C $(LIBFT_DIR) clean
-	@$(MAKE) -C $(MINILIBX_DIR) clean
+	rm -f $(OBJ) && rm -f libft/*.o
 	@sleep 0.5
 	@echo object files cleaned.
 
