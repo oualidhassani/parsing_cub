@@ -1,9 +1,27 @@
 #include "../lib.h"
 
+void	destroy_game(t_map *map)
+{
+	if (map->no_texture)
+		free(map->no_texture);
+	if (map->so_texture)
+		free(map->so_texture);
+	if (map->we_texture)
+		free(map->we_texture);
+	if (map->ea_texture)
+		free(map->ea_texture);
+	if (map->floor_color)
+		free(map->floor_color);
+	if (map->ceiling_color)
+		free(map->ceiling_color);
+	if (map->map)
+		free2d(map->map);
+}
+
 void	error_print(char *str, t_map *map)
 {
-	printf(RED "Error\n" RST);
-	printf(YELLOW "%s\n" RST, str);
+	// printf(RED "Error\n" RST);
+	printf("%s\n", str);
 	destroy_game(map);
 	exit(1);
 }
@@ -26,7 +44,6 @@ void	map_initializer(t_map *map)
 	map->ceiling_rgb.r = -1;
 	map->ceiling_rgb.g = -1;
 	map->ceiling_rgb.b = -1;
-	map->sprite_h = 0;
 }
 
 bool	ft_isspace(char c)

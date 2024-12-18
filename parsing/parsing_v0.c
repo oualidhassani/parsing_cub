@@ -1,5 +1,5 @@
 #include "../lib.h"
-                                   
+                              
 void	set_texture(char **texture, char *line, t_map *map)
 {
 	if (!*texture)
@@ -63,8 +63,8 @@ void	save_player(t_map *map)
 				if (map->player.dir)
 					error_print("Duplicate player", map);
 				map->player.dir = map->map[i][j];
-				map->player.pos_x = j;
-				map->player.pos_y = i;
+				map->player.p_x = j;
+				map->player.p_y = i;
 			}
 			j++;
 		}
@@ -80,18 +80,18 @@ void	start_parsing(char *av, t_map *map)
 
 	if (!av || !ft_strlen(av))
 	{
-		printf(RED"Error\nNo file specified\n");
+		printf("Error\nNo file specified\n");
 		exit(1);
 	}
 	if (!check_file_extension(av))
 	{
-		printf(RED"Error\nInvalid file extension\n");
+		printf("Error\nInvalid file extension\n");
 		exit(1);
 	}
 	fd = open(av, O_RDONLY);
 	if (fd < 0)
 	{
-		printf(RED"Error\nCan't open the file\n");
+		printf("Error\nCan't open the file\n");
 		exit(1);
 	}
 	map_initializer(map);

@@ -1,5 +1,5 @@
-#ifndef CUB3D_H
-#define CUB3D_H
+#ifndef LIB_H
+#define LIB_H
 
 #include <stdio.h>
 #include <unistd.h>
@@ -10,7 +10,11 @@
 #include <stdbool.h>
 #include <limits.h>
 #include <float.h>
-#include "parsing/parsing.h"
+#include <fcntl.h>
+#include "libft/libft.h"
+#define RED 0x00FF0000
+#define GREEN 0x0000FF00
+#define BLUE 0x000000FF
 #define TILE_SIZE 32
 #define MAP_WIDTH 7
 #define MAP_HEIGHT 7
@@ -18,7 +22,7 @@
 #define WINDOW_HEIGHT 1280
 #define TD_MAP_SIZE 7 * TILE_SIZE
 #define EPSILON 0.0001
-extern char *map[7];
+// extern char *map[7];
 
 typedef struct s_ray 
 {
@@ -63,6 +67,7 @@ typedef struct s_player
     t_ray *rays;
 } t_player;
 
+
 typedef struct s_rgb
 {
     int r;
@@ -87,16 +92,55 @@ typedef struct s_mlx
     t_player player;
 } t_mlx  ;
 
+//parsing oualid
+typedef struct s_map
+{
+    char    *no_texture;
+    char    *so_texture;
+    char    *we_texture;
+    char    *ea_texture;
+    char    *floor_color;
+    char   *ceiling_color;
+    char	**map;
+    struct s_player player;
+    struct s_rgb    floor_rgb;
+    struct s_rgb    ceiling_rgb;
+} t_map;
 
-void player_position(t_mlx *mlx);
-void init_player(t_mlx *mlx);
+void player_position(t_mlx *mlx, t_map *map);
+void init_player(t_mlx *mlx, t_map *map);
 void draw_player(t_mlx *mlx);
 void my_mlx_pixel_put(t_img *img, int x, int y, int color);
 void draw_line (t_mlx *mlx);
-void update_player(t_mlx *mlx);
-int does_hit_right_Bottom_wall(t_mlx *mlx, int x, int y);
+void update_player(t_mlx *mlx, t_map *map);
+int does_hit_right_Bottom_wall(t_mlx *mlx, int x, int y, t_map *map);
 void player_center_position(t_mlx *mlx, int x, int y);
 void render_3D_projection_walls(t_mlx *mlx);
 void draw_line_3D_helper(t_mlx *mlx, int x, int start_y, int end_y, int color);
-void render_all(t_mlx *mlx);
+void render_all(t_mlx *mlx, t_map *map);
+
+
+//functions parsing oualid
+void	start_parsing(char *av, t_map *map);
+void	map_initializer(t_map *map);
+void	error_print(char *str, t_map *map);
+void	file_parser(int fd, t_map *map);
+void	parse_textures(t_map *map);
+void	save_textures(char *line, t_map *map);
+void	map_parser(int fd, t_map *map);
+void	parse_colors(t_map *map);
+bool	check_file_extension(char *av);
+void	free2d(char **str);
+bool	ft_isspace(char c);
+char	*ft_substr_plus(char *s);
+bool	is_all_whitespace(char *str);
+bool	check_newline(char *map);
+bool	check_comma(char *str);
+bool	check_rgb(t_rgb rgb);
+void	parse_rgb(t_map *map);
+bool    check_map(char *map);
+long	ft_atomic_atoi(char *str);
+bool    check_path(char *path);
+void	save_colors(char *line, t_map *map);
+void    save_player(t_map *map);
 #endif

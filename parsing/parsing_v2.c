@@ -14,6 +14,16 @@ bool	check_valid_chars(char *map)
 	return (true);
 }
 
+int ft_str2dlen(char **str)
+{
+	int	i;
+
+	i = 0;
+	while (str[i])
+		i++;
+	return (i);
+}
+
 bool	check_none_one_surr(char **map2d, int i, int j)
 {
 	if (i == 0 || i == ft_str2dlen(map2d) - 1 || j == 0
