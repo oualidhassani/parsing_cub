@@ -177,8 +177,8 @@ int key_release(int key_code, void *mlx_ptr)
 int main(int ac, char **av)
 {
     (void)ac;
-    t_map *map = NULL;
-    start_parsing(*av, map);
+    t_map *map = malloc(sizeof(t_map));
+    start_parsing(av[1], map);
     t_mlx mlx;
     init_player(&mlx,map);
     mlx_initializer(&mlx);
@@ -187,4 +187,5 @@ int main(int ac, char **av)
     mlx_hook(mlx.win, 02, 1L<<0, key_press, &mlx);
     mlx_hook(mlx.win, 3, 1L<<1, key_release, &mlx);
     mlx_loop(mlx.mlx);
+    free(map);
 } 

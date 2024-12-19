@@ -15,11 +15,9 @@ OBJ = $(SRC:.c=.o)
 LIBFT_DIR = libft
 LIBFT = $(LIBFT_DIR)/libft.a
 
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -fsanitize=address
 
-AR = ar rcs
 RM = rm  
-
 NAME = cub3D
 
 all : $(NAME)
@@ -30,7 +28,7 @@ $(LIBFT):
 
 $(NAME): $(OBJ) $(LIBFT)
 	@echo "compiling $(NAME)"
-	@$(CC) $(OBJ) $(LIBFT) -Lmlx_linux -lmlx_Linux -L/usr/lib -Imlx_linux -lXext -lX11 -lm -lz -o $(NAME)
+	@$(CC) $(CFLAGS) $(OBJ) $(LIBFT) -Lmlx_linux -lmlx_Linux -L/usr/lib -Imlx_linux -lXext -lX11 -lm -lz -o $(NAME)
 	@sleep 1
 	@echo "$(NAME) compiled successfully."
 
