@@ -41,7 +41,6 @@ void	parse_textures(t_map *map)
 void	file_parser(int fd, t_map *map)
 {
 	char	*line;
-
 	while (1)
 	{
 		line = ft_strtrim(get_next_line(fd), "\n");
@@ -60,6 +59,7 @@ void	file_parser(int fd, t_map *map)
 	if (!map->no_texture || !map->so_texture || !map->we_texture
 		|| !map->ea_texture || !map->floor_color || !map->ceiling_color)
 		error_print("Missing Textures/Color, or map empty", map);
+
 }
 
 char *ft_strjoin_gnl(char *s1, char *s2)
@@ -94,7 +94,8 @@ void	map_parser(int fd, t_map *map)
 {
 	char	*line;
 	char	*map1d;
-
+	int		i;
+	i	= 0; 
 	map1d = ft_strdup("");
 	while (1)
 	{
@@ -107,6 +108,17 @@ void	map_parser(int fd, t_map *map)
 	if (!check_map(map1d))
 		error_print("Invalid map", map);
 	map->map = ft_split(map1d, '\n');
+  map->height = 0;
+    while (map->map[map->height])
+        map->height++;
+    map->width = 0;
+    while (i < map->height)
+    {
+        int line_length = ft_strlen(map->map[i]);
+        if (line_length > map->width)
+            map->width = line_length;
+		i++;
+    }
 	save_player(map);
 	free(map1d);
 }

@@ -16,11 +16,8 @@
 #define GREEN 0x0000FF00
 #define BLUE 0x000000FF
 #define TILE_SIZE 32
-#define MAP_WIDTH 7
-#define MAP_HEIGHT 7
 #define WINDOW_WIDTH 1920
 #define WINDOW_HEIGHT 1280
-#define TD_MAP_SIZE 7 * TILE_SIZE
 #define EPSILON 0.0001
 // extern char *map[7];
 
@@ -85,14 +82,6 @@ typedef struct s_img
 	int		endian;
 } t_img;
 
-typedef struct s_mlx 
-{
-    void *mlx;
-    void *win;
-    t_img img;
-    t_player player;
-} t_mlx  ;
-
 //parsing oualid
 typedef struct s_map
 {
@@ -103,22 +92,36 @@ typedef struct s_map
     char    *floor_color;
     char   *ceiling_color;
     char	**map;
+    int     height;
+    int     width;
+    int     td_map_size;
     struct s_player player;
     struct s_rgb    floor_rgb;
     struct s_rgb    ceiling_rgb;
 } t_map;
 
-void player_position(t_mlx *mlx, t_map *map);
-void init_player(t_mlx *mlx, t_map *map);
+
+typedef struct s_mlx 
+{
+    void *mlx;
+    void *win;
+    t_img img;
+    t_map maps;
+    t_player player;
+} t_mlx  ;
+
+
+void player_position(t_mlx *mlx);
+void init_player(t_mlx *mlx);
 void draw_player(t_mlx *mlx);
 void my_mlx_pixel_put(t_img *img, int x, int y, int color);
 void draw_line (t_mlx *mlx);
-void update_player(t_mlx *mlx, t_map *map);
-int does_hit_right_Bottom_wall(t_mlx *mlx, int x, int y, t_map *map);
+void update_player(t_mlx *mlx);
+int does_hit_right_Bottom_wall(t_mlx *mlx, int x, int y);
 void player_center_position(t_mlx *mlx, int x, int y);
 void render_3D_projection_walls(t_mlx *mlx);
 void draw_line_3D_helper(t_mlx *mlx, int x, int start_y, int end_y, int color);
-void render_all(t_mlx *mlx, t_map *map);
+void render_all(t_mlx *mlx);
 
 
 //functions parsing oualid
@@ -144,6 +147,7 @@ long	ft_atomic_atoi(char *str);
 bool    check_path(char *path);
 void	save_colors(char *line, t_map *map);
 void    save_player(t_map *map);
+void print_map(t_map *maps);
 
 // loading textures 
 void load_textures(t_map *map, t_mlx *mlx);

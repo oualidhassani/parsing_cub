@@ -36,15 +36,16 @@ void draw_wall (t_mlx *mlx, int x, int y)
     }
 }
 
+
 void draw_background (t_mlx *mlx)
 {
     int i = 0;
     int j = 0;
 
-    while(i < (TD_MAP_SIZE))
+    while(i < (mlx->maps.td_map_size))
     {
         j = 0;
-        while(j < (TD_MAP_SIZE))
+        while(j < (mlx->maps.td_map_size))
         {
             my_mlx_pixel_put(&mlx->img, j, i, 0x000000ff);
             j++;
@@ -53,17 +54,17 @@ void draw_background (t_mlx *mlx)
     }
 }
 
-void player_position(t_mlx *mlx, t_map *map)
+void player_position(t_mlx *mlx)
 {
     int i = 0;
     int j = 0;
-
-    while(i < MAP_HEIGHT)
+    
+    while(i < mlx->maps.height)
     {
         j = 0;
-        while (map->map[i][j])
+        while (mlx->maps.map[i][j])
         {
-            if(map->map[i][j] == 'N')
+            if(mlx->maps.map[i][j] == 'N')
             {
                 player_center_position(mlx, j, i);
                 break;
@@ -74,18 +75,18 @@ void player_position(t_mlx *mlx, t_map *map)
     }
 }
 
-void draw_map(t_mlx *mlx, t_map *map)
+void draw_map(t_mlx *mlx)
 {
     int i = 0;
     int j = 0;
 
     draw_background(mlx);
-    while (i < MAP_HEIGHT)
+    while(i < mlx->maps.height)
     {
         j = 0;
-        while (map->map[i][j]) 
+        while(mlx->maps.map[i][j])
         {
-            if (map->map[i][j] == '1')
+            if(mlx->maps.map[i][j] == '1')
                 draw_wall(mlx, j, i);
             j++;
         }
@@ -93,25 +94,26 @@ void draw_map(t_mlx *mlx, t_map *map)
     }
 }
 
-void draw_scene(t_mlx *mlx, t_map *map)
+void draw_scene(t_mlx *mlx)
 {
-    render_all(mlx, map);
-    load_textures(map, mlx);
+    render_all(mlx);
+    // load_textures(map, mlx);
     // draw_map(mlx);
     // draw_player(mlx);
 }
 
-void refreshing(t_mlx *mlx, t_map *map)
+void refreshing(t_mlx *mlx)
 {
-    update_player (mlx, map);
+    
+    update_player (mlx);
     mlx_clear_window(mlx->mlx, mlx->win);
-    draw_scene(mlx, map);
+    draw_scene(mlx);
     mlx_put_image_to_window(mlx->mlx, mlx->win, mlx->img.img, 0, 0);
     mlx->player.turn_direction = 0;
     mlx->player.walk_direction = 0;
 }
 
-int key_press(int key_code, void *mlx_ptr, t_map *map)
+int key_press(int key_code, void *mlx_ptr)
 {
     t_mlx *mlx;
 
@@ -124,22 +126,22 @@ int key_press(int key_code, void *mlx_ptr, t_map *map)
         else if (key_code == 119)
         {
             mlx->player.walk_direction = 1;
-            refreshing(mlx, map);
+            refreshing(mlx);
         }
         else if(key_code == 115)
         {
             mlx->player.walk_direction = -1;
-            refreshing(mlx, map);
+            refreshing(mlx);
         }
         else if(key_code == 97)
         {
             mlx->player.turn_direction = -1;
-            refreshing(mlx, map);
+            refreshing(mlx);
         }
         else if(key_code == 100)
         {
             mlx->player.turn_direction = 1;
-            refreshing(mlx, map);
+            refreshing(mlx);
         }
         printf("keypress = %d\n", key_code);
     return 0;
@@ -178,15 +180,16 @@ int key_release(int key_code, void *mlx_ptr)
 int main(int ac, char **av)
 {
     (void)ac;
-    t_map *map = malloc(sizeof(t_map));
-    start_parsing(av[1], map);
+    t_map maps;
     t_mlx mlx;
+    start_parsing(av[1], &maps);
+    mlx.maps = maps;
+    print_map(&maps);
     mlx_initializer(&mlx);
-    init_player(&mlx,map);
-    draw_scene(&mlx, map);
+    init_player(&mlx);
+    draw_scene(&mlx);
     mlx_put_image_to_window(mlx.mlx, mlx.win, mlx.img.img, 0, 0);
     mlx_hook(mlx.win, 02, 1L<<0, key_press, &mlx);
     mlx_hook(mlx.win, 3, 1L<<1, key_release, &mlx);
     mlx_loop(mlx.mlx);
-    free(map);
 } 
