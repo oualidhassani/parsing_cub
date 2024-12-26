@@ -47,6 +47,7 @@ void init_player(t_mlx *mlx, t_map *map)
     mlx->player.rotation_speed = 2 * (M_PI / 180); //formula to get radius angle from degrees
     mlx->player.fov = 60 * (M_PI / 180);
     mlx->player.wall_strip_width = 1;
+    mlx->player.wall_strip_height = 1;
     mlx->player.number_of_rays = WINDOW_WIDTH/mlx->player.wall_strip_width;
     mlx->player.rays = malloc(sizeof(t_ray) * mlx->player.number_of_rays);
     if (!mlx->player.rays)
@@ -156,7 +157,7 @@ void draw_line_3D_helper(t_mlx *mlx, int x, int start_y, int end_y, int color)
 void render_3D_projection_walls(t_mlx *mlx)
 {
     int i = 0;
-    float wall_strip_width = WINDOW_WIDTH / mlx->player.number_of_rays;
+    mlx->player.wall_strip_width = WINDOW_WIDTH / mlx->player.number_of_rays;
 
     while (i < mlx->player.number_of_rays)
     {
@@ -164,11 +165,11 @@ void render_3D_projection_walls(t_mlx *mlx)
         // Correct the ray distance to remove the fish-eye effect
         float distance = ray.distance * cos(ray.ray_angle - mlx->player.rotation_angle);
         float distance_projection_plane = (WINDOW_WIDTH / 2) / tan(mlx->player.fov / 2);
-        float wall_strip_height = (TILE_SIZE / distance) * distance_projection_plane;
+        mlx->player.wall_strip_height = (TILE_SIZE / distance) * distance_projection_plane;
 
         // Calculate wall positions
-        float wall_top_pixel = (WINDOW_HEIGHT / 2) - (wall_strip_height / 2);
-        float wall_bottom_pixel = (WINDOW_HEIGHT / 2) + (wall_strip_height / 2);
+        float wall_top_pixel = (WINDOW_HEIGHT / 2) - (mlx->player.wall_strip_height / 2);
+        float wall_bottom_pixel = (WINDOW_HEIGHT / 2) + (mlx->player.wall_strip_height / 2);
 
         // Ensure walls don't render outside window bounds
         if (wall_top_pixel < 0)
@@ -177,7 +178,7 @@ void render_3D_projection_walls(t_mlx *mlx)
             wall_bottom_pixel = WINDOW_HEIGHT;
 
         // Calculate x position for the wall strip
-        int x = i * wall_strip_width;
+        int x = i * mlx->player.wall_strip_width;
         float shading_factor;
 
         shading_factor = 1.0f / (1.0f + (distance * 0.01f));

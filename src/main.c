@@ -96,6 +96,7 @@ void draw_map(t_mlx *mlx, t_map *map)
 void draw_scene(t_mlx *mlx, t_map *map)
 {
     render_all(mlx, map);
+    load_textures(map, mlx);
     // draw_map(mlx);
     // draw_player(mlx);
 }
@@ -180,8 +181,8 @@ int main(int ac, char **av)
     t_map *map = malloc(sizeof(t_map));
     start_parsing(av[1], map);
     t_mlx mlx;
-    init_player(&mlx,map);
     mlx_initializer(&mlx);
+    init_player(&mlx,map);
     draw_scene(&mlx, map);
     mlx_put_image_to_window(mlx.mlx, mlx.win, mlx.img.img, 0, 0);
     mlx_hook(mlx.win, 02, 1L<<0, key_press, &mlx);

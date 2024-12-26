@@ -59,7 +59,7 @@ void	file_parser(int fd, t_map *map)
 	}
 	if (!map->no_texture || !map->so_texture || !map->we_texture
 		|| !map->ea_texture || !map->floor_color || !map->ceiling_color)
-		error_print("Missing Textures/Color", map);
+		error_print("Missing Textures/Color, or map empty", map);
 }
 
 char *ft_strjoin_gnl(char *s1, char *s2)

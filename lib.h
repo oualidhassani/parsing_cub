@@ -62,6 +62,7 @@ typedef struct s_player
     float rotation_speed;
     float fov;
     float wall_strip_width;
+    float wall_strip_height;
     int   number_of_rays;
     float start_column_angle;
     t_ray *rays;
@@ -143,4 +144,8 @@ long	ft_atomic_atoi(char *str);
 bool    check_path(char *path);
 void	save_colors(char *line, t_map *map);
 void    save_player(t_map *map);
+
+// loading textures 
+void load_textures(t_map *map, t_mlx *mlx);
+
 #endif
