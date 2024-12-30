@@ -18,6 +18,33 @@ void mlx_initializer(t_mlx *mlx)
         ,&mlx->img.line_length, &mlx->img.endian);
 }
 
+void map_calculator(t_map *maps)
+{
+    int i = 0;
+    maps->width = 0;
+    int biggest_len = 0;
+    
+    // Count rows and find longest row
+    while(i < maps->height)
+    {
+        int j = 0;
+        while(maps->map[i][j])
+        {
+            j++;
+        }
+        if (j > biggest_len)
+        {
+            biggest_len = j;
+        }
+        i++;
+    }
+    
+    maps->width = biggest_len;
+    maps->td_map_size = (maps->width * TILE_SIZE);
+    printf("Map dimensions - Width: %d, Height: %d, TD size: %d\n", 
+       maps->width, maps->height, maps->td_map_size);
+}
+
 void draw_wall (t_mlx *mlx, int x, int y)
 {
     int i = 0;
@@ -66,6 +93,7 @@ void player_position(t_mlx *mlx)
         {
             if(mlx->maps.map[i][j] == 'N')
             {
+                printf("i = %d ---- j = %d\n", i,j);
                 player_center_position(mlx, j, i);
                 break;
             }
@@ -75,24 +103,24 @@ void player_position(t_mlx *mlx)
     }
 }
 
-void draw_map(t_mlx *mlx)
-{
-    int i = 0;
-    int j = 0;
+// void draw_map(t_mlx *mlx)
+// {
+//     int i = 0;
+//     int j = 0;
 
-    draw_background(mlx);
-    while(i < mlx->maps.height)
-    {
-        j = 0;
-        while(mlx->maps.map[i][j])
-        {
-            if(mlx->maps.map[i][j] == '1')
-                draw_wall(mlx, j, i);
-            j++;
-        }
-        i++;
-    }
-}
+//     draw_background(mlx);
+//     while(i < mlx->maps.height)
+//     {
+//         j = 0;
+//         while(mlx->maps.map[i][j] != '\0')  // Check for end of string
+//         {
+//             if(mlx->maps.map[i][j] == '1')
+//                 draw_wall(mlx, j, i);
+//             j++;
+//         }
+//         i++;
+//     }
+// }
 
 void draw_scene(t_mlx *mlx)
 {
@@ -183,9 +211,10 @@ int main(int ac, char **av)
     t_map maps;
     t_mlx mlx;
     start_parsing(av[1], &maps);
-    mlx.maps = maps;
-    print_map(&maps);
     mlx_initializer(&mlx);
+    mlx.maps = maps;
+    //map_calculator(&maps);
+    //print_map(&maps);
     init_player(&mlx);
     draw_scene(&mlx);
     mlx_put_image_to_window(mlx.mlx, mlx.win, mlx.img.img, 0, 0);

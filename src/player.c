@@ -56,12 +56,19 @@ void init_player(t_mlx *mlx)
 }
 
 int map_has_wall_at(t_mlx *mlx, float x, float y) {
-    if (x < 0 || x > mlx->maps.td_map_size|| y < 0 || y > mlx->maps.td_map_size) {
-        return 1;
+    if (x < 0 || x >= mlx->maps.width * TILE_SIZE || y < 0 || y >= mlx->maps.height * TILE_SIZE) {
+        return 1; // Outside bounds, treat as a wall
     }
     int mapGridIndexX = floor(x / TILE_SIZE);
     int mapGridIndexY = floor(y / TILE_SIZE);
-    return mlx->maps.map[mapGridIndexY][mapGridIndexX] == '1';
+    
+    // Ensure indices are within the bounds of the map array
+    if (mapGridIndexX < 0 || mapGridIndexX >= mlx->maps.height || 
+        mapGridIndexY < 0 || mapGridIndexY >= mlx->maps.width) {
+        return 1; // Treat as a wall if out of bounds
+    }
+    
+    return mlx->maps.map[mapGridIndexY][mapGridIndexX] == '1'; // Check bounds here
 }
 
 int does_hit_right_Bottom_wall(t_mlx *mlx, int x, int y)
@@ -70,7 +77,7 @@ int does_hit_right_Bottom_wall(t_mlx *mlx, int x, int y)
     int bottom_y = y + (mlx->player.size/2);
     int converting_x_to_grid = floor(right_x / TILE_SIZE);
     int converting_y_to_grid = floor(bottom_y / TILE_SIZE);
-
+    
     if(mlx->maps.map[converting_y_to_grid][converting_x_to_grid] == '1')
     {
         printf("oups !! you're hitting a wall\n");
@@ -93,20 +100,6 @@ int does_hit_left_top_wall(t_mlx *mlx, int x, int y)
     return 0;
 }
 
-// void print_map() // Commented out as it is not defined
-void print_map(t_map *maps)
-{
-    for (int y = 0; y < maps->height; y++)
-    {
-        int x = 0;
-        while (maps->map[y][x])
-        {
-            printf("%c ", maps->map[y][x]);
-            x++;
-        }
-        printf("\n");
-    }
-}
 void update_player(t_mlx *mlx)
 {
     int old_x = mlx->player.p_x;
@@ -274,7 +267,10 @@ void vertical_ray_intersection(t_mlx *mlx, t_ray *ray)
     next_vertical_touch_y = yintercept;
     if (ray->is_ray_facing_left)
         next_vertical_touch_x = xintercept - EPSILON;
-    while(next_vertical_touch_x >= 0 && next_vertical_touch_x <= mlx->maps.td_map_size && next_vertical_touch_y >= 0 && next_vertical_touch_y <= mlx->maps.td_map_size)
+    while(next_vertical_touch_x >= 0 && 
+       next_vertical_touch_x <= mlx->maps.width * TILE_SIZE && 
+       next_vertical_touch_y >= 0 && 
+       next_vertical_touch_y <= mlx->maps.height * TILE_SIZE)
     {
         if(map_has_wall_at(mlx, next_vertical_touch_x, next_vertical_touch_y))
         {
@@ -327,7 +323,13 @@ void horizontal_line_intersection(t_mlx *mlx, t_ray *ray)
 
     if (ray->is_ray_facing_up)
         next_horizontal_touch_y = yintercept - EPSILON; // Move slightly up
-    while(next_horizontal_touch_x >= 0 && next_horizontal_touch_x <= mlx->maps.td_map_size && next_horizontal_touch_y >= 0 && next_horizontal_touch_y <= mlx->maps.td_map_size)
+    printf("ray angle = %f\n", ray->ray_angle);
+    printf("next horizontal touch = %f\n", next_horizontal_touch_x);
+    printf("map width => %d\n",mlx->maps.width);
+    while(next_horizontal_touch_x >= 0 && 
+       next_horizontal_touch_x <= mlx->maps.width * TILE_SIZE && 
+       next_horizontal_touch_y >= 0 && 
+       next_horizontal_touch_y <= mlx->maps.height * TILE_SIZE)
     {
         if(map_has_wall_at(mlx, next_horizontal_touch_x, next_horizontal_touch_y))
         {
