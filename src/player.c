@@ -187,7 +187,7 @@ void render_3D_projection_walls(t_mlx *mlx)
     {
         t_ray *ray = &mlx->player.rays[x];
         
-        double perpWallDist = ray->distance * cos(ray->ray_angle - mlx->player.rotation_angle);
+        double perpWallDist = ray->distance;
         if (perpWallDist <= 0.0) perpWallDist = 0.1;
 
         int lineHeight = (int)(WINDOW_HEIGHT / perpWallDist * TILE_SIZE);
@@ -197,27 +197,28 @@ void render_3D_projection_walls(t_mlx *mlx)
         if (drawStart < 0) drawStart = 0;
         if (drawEnd >= WINDOW_HEIGHT) drawEnd = WINDOW_HEIGHT - 1;
 
-        // Calculate wallX (exact hit position)
+        int texNum;
+        if (ray->was_hit_vertical) 
+        {
+            texNum = ray->is_ray_facing_left ? 0 : 1; 
+        } else 
+        {
+            texNum = ray->is_ray_facing_up ? 2 : 3;   
+        }
+
         double wallX;
-        if (!ray->was_hit_vertical)
-            wallX = mlx->player.p_x + perpWallDist * cos(ray->ray_angle);
+        if (ray->was_hit_vertical)
+            wallX = ray->wall_hit_y - floor(ray->wall_hit_y / TILE_SIZE) * TILE_SIZE;
         else
-            wallX = mlx->player.p_y + perpWallDist * sin(ray->ray_angle);
-        wallX -= floor(wallX);
+            wallX = ray->wall_hit_x - floor(ray->wall_hit_x / TILE_SIZE) * TILE_SIZE;
 
-        // Get texture index
-        int texNum = ray->wall_hit_content - 1;
-        if (texNum < 0 || texNum >= NUM_TEXTURES)
-            texNum = 0;
-
-        // Calculate texX
-        int texX = (int)(wallX * (double)mlx->width[texNum]);
-        if (!ray->was_hit_vertical && ray->is_ray_facing_right)
+        // Get texture X coordinate
+        int texX = (int)(wallX * mlx->width[texNum] / TILE_SIZE);
+        if (ray->was_hit_vertical && ray->is_ray_facing_left)
             texX = mlx->width[texNum] - texX - 1;
-        if (ray->was_hit_vertical && ray->is_ray_facing_up)
+        if (!ray->was_hit_vertical && ray->is_ray_facing_up)
             texX = mlx->width[texNum] - texX - 1;
 
-        // Calculate texture step and starting position
         double step = 1.0 * mlx->height[texNum] / lineHeight;
         double texPos = (drawStart - WINDOW_HEIGHT / 2 + lineHeight / 2) * step;
 
@@ -225,17 +226,16 @@ void render_3D_projection_walls(t_mlx *mlx)
         for (int y = 0; y < drawStart; y++)
             my_mlx_pixel_put(&mlx->img, x, y, 0x87CEEB);
 
-        // Draw textured wall
+        // Draw wall
         for (int y = drawStart; y < drawEnd; y++)
         {
-            int texY = (int)texPos & (mlx->height[texNum] - 1);
+            int texY = (int)texPos;
+            if (texY >= mlx->height[texNum]) texY = mlx->height[texNum] - 1;
             texPos += step;
-
-            int color = get_texture_color(mlx, texX, texY, texNum);
             
-            // Make y-sides darker
-            if (!ray->was_hit_vertical)
-                color = (color >> 1) & 8355711;
+            int color = get_texture_color(mlx, texX, texY, texNum);
+            if (ray->was_hit_vertical)
+                color = (color >> 1) & 8355711;  // Apply shading for vertical walls
 
             my_mlx_pixel_put(&mlx->img, x, y, color);
         }
@@ -245,6 +245,7 @@ void render_3D_projection_walls(t_mlx *mlx)
             my_mlx_pixel_put(&mlx->img, x, y, 0x8B4513);
     }
 }
+
 
 
 

@@ -17,8 +17,8 @@
 #define NUM_TEXTURES 4 // Replace 4 with the actual number of textures in your program
 #define BLUE 0x000000FF
 #define TILE_SIZE 32
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 800
+#define WINDOW_WIDTH 1600
+#define WINDOW_HEIGHT 1200
 #define EPSILON 0.0001
 // extern char *map[7];
 
@@ -114,7 +114,7 @@ typedef struct s_mlx
     void    *images[4];
     int     width[4];
     int     height[4];
-    int     *add[4];
+    char     *add[4];
 } t_mlx  ;
 
 

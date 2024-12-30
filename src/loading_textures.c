@@ -25,7 +25,7 @@ void load_texture(t_mlx *mlx, char *path, int index)
         free_textures(mlx);
         return ;
     }
-    mlx->add[index] = (int *)mlx_get_data_addr(img, &mlx->img.bits_per_pixel, 
+    mlx->add[index] = mlx_get_data_addr(img, &mlx->img.bits_per_pixel, 
                                                &mlx->img.line_length, &mlx->img.endian);
     mlx->width[index] = width;
     mlx->height[index] = height;
