@@ -148,66 +148,107 @@ int apply_shading(int base_color, float shading_factor)
     return result;
 }
 
+// void draw_line_3D_helper(t_mlx *mlx, int x, int start_y, int end_y, int color)
+// {
+//     if (start_y > end_y)
+//         return;
+
+//     for (int y = start_y; y < end_y; y++)
+//     {
+//         //mlx_destroy_image(mlx->mlx, mlx->img.img);
+//         my_mlx_pixel_put(&mlx->img, x, y, color);
+//     }
+// }
 void draw_line_3D_helper(t_mlx *mlx, int x, int start_y, int end_y, int color)
 {
-    if (start_y > end_y)
-        return;
-
     for (int y = start_y; y < end_y; y++)
     {
-        //mlx_destroy_image(mlx->mlx, mlx->img.img);
         my_mlx_pixel_put(&mlx->img, x, y, color);
     }
 }
+
+int get_texture_color(t_mlx *mlx, int texture_x, int texture_y, int texture_index)
+{
+    if (texture_x < 0 || texture_y < 0 || 
+        texture_x >= mlx->width[texture_index] || 
+        texture_y >= mlx->height[texture_index] || 
+        !mlx->add[texture_index])
+        return 0;
+
+    texture_x = texture_x % mlx->width[texture_index];
+    texture_y = texture_y % mlx->height[texture_index];
+    
+    return mlx->add[texture_index][texture_y * mlx->width[texture_index] + texture_x];
+}
+
 void render_3D_projection_walls(t_mlx *mlx)
 {
-    int i = 0;
-    float wall_strip_width = WINDOW_WIDTH / mlx->player.number_of_rays;
-
-    while (i < mlx->player.number_of_rays)
+    for (int x = 0; x < mlx->player.number_of_rays; x++)
     {
-        t_ray ray = mlx->player.rays[i];
-        // Correct the ray distance to remove the fish-eye effect
-        float distance = ray.distance * cos(ray.ray_angle - mlx->player.rotation_angle);
-        float distance_projection_plane = (WINDOW_WIDTH / 2) / tan(mlx->player.fov / 2);
-        float wall_strip_height = (TILE_SIZE / distance) * distance_projection_plane;
+        t_ray *ray = &mlx->player.rays[x];
+        
+        double perpWallDist = ray->distance * cos(ray->ray_angle - mlx->player.rotation_angle);
+        if (perpWallDist <= 0.0) perpWallDist = 0.1;
 
-        // Calculate wall positions
-        float wall_top_pixel = (WINDOW_HEIGHT / 2) - (wall_strip_height / 2);
-        float wall_bottom_pixel = (WINDOW_HEIGHT / 2) + (wall_strip_height / 2);
+        int lineHeight = (int)(WINDOW_HEIGHT / perpWallDist * TILE_SIZE);
 
-        // Ensure walls don't render outside window bounds
-        if (wall_top_pixel < 0)
-            wall_top_pixel = 0;
-        if (wall_bottom_pixel > WINDOW_HEIGHT)
-            wall_bottom_pixel = WINDOW_HEIGHT;
+        int drawStart = -lineHeight / 2 + WINDOW_HEIGHT / 2;
+        int drawEnd = lineHeight / 2 + WINDOW_HEIGHT / 2;
+        if (drawStart < 0) drawStart = 0;
+        if (drawEnd >= WINDOW_HEIGHT) drawEnd = WINDOW_HEIGHT - 1;
 
-        // Calculate x position for the wall strip
-        int x = i * wall_strip_width;
-        float shading_factor;
+        // Calculate wallX (exact hit position)
+        double wallX;
+        if (!ray->was_hit_vertical)
+            wallX = mlx->player.p_x + perpWallDist * cos(ray->ray_angle);
+        else
+            wallX = mlx->player.p_y + perpWallDist * sin(ray->ray_angle);
+        wallX -= floor(wallX);
 
-        shading_factor = 1.0f / (1.0f + (distance * 0.01f));
+        // Get texture index
+        int texNum = ray->wall_hit_content - 1;
+        if (texNum < 0 || texNum >= NUM_TEXTURES)
+            texNum = 0;
+
+        // Calculate texX
+        int texX = (int)(wallX * (double)mlx->width[texNum]);
+        if (!ray->was_hit_vertical && ray->is_ray_facing_right)
+            texX = mlx->width[texNum] - texX - 1;
+        if (ray->was_hit_vertical && ray->is_ray_facing_up)
+            texX = mlx->width[texNum] - texX - 1;
+
+        // Calculate texture step and starting position
+        double step = 1.0 * mlx->height[texNum] / lineHeight;
+        double texPos = (drawStart - WINDOW_HEIGHT / 2 + lineHeight / 2) * step;
+
         // Draw ceiling
-        draw_line_3D_helper(mlx, x, 0, wall_top_pixel, 0x87CEEB);  // Sky blue
+        for (int y = 0; y < drawStart; y++)
+            my_mlx_pixel_put(&mlx->img, x, y, 0x87CEEB);
 
-        // Draw wall strip
-        if (ray.was_hit_vertical)
+        // Draw textured wall
+        for (int y = drawStart; y < drawEnd; y++)
         {
-            int shaded_color = apply_shading(0x808080, shading_factor);
-            draw_line_3D_helper(mlx, x, wall_top_pixel, wall_bottom_pixel, shaded_color);  // Gray
-        }
-        else 
-        {
-            int shaded_color = apply_shading(0xFF0000, shading_factor);
-            draw_line_3D_helper(mlx, x, wall_top_pixel, wall_bottom_pixel, shaded_color);  // Gray
+            int texY = (int)texPos & (mlx->height[texNum] - 1);
+            texPos += step;
+
+            int color = get_texture_color(mlx, texX, texY, texNum);
+            
+            // Make y-sides darker
+            if (!ray->was_hit_vertical)
+                color = (color >> 1) & 8355711;
+
+            my_mlx_pixel_put(&mlx->img, x, y, color);
         }
 
         // Draw floor
-        draw_line_3D_helper(mlx, x, wall_bottom_pixel, WINDOW_HEIGHT, 0x8B4513);  // Brown
-
-        i++;
+        for (int y = drawEnd; y < WINDOW_HEIGHT; y++)
+            my_mlx_pixel_put(&mlx->img, x, y, 0x8B4513);
     }
 }
+
+
+
+
 
 
 // Helper function to draw vertical lines
@@ -323,9 +364,9 @@ void horizontal_line_intersection(t_mlx *mlx, t_ray *ray)
 
     if (ray->is_ray_facing_up)
         next_horizontal_touch_y = yintercept - EPSILON; // Move slightly up
-    printf("ray angle = %f\n", ray->ray_angle);
-    printf("next horizontal touch = %f\n", next_horizontal_touch_x);
-    printf("map width => %d\n",mlx->maps.width);
+    // printf("ray angle = %f\n", ray->ray_angle);
+    // printf("next horizontal touch = %f\n", next_horizontal_touch_x);
+    // printf("map width => %d\n",mlx->maps.width);
     while(next_horizontal_touch_x >= 0 && 
        next_horizontal_touch_x <= mlx->maps.width * TILE_SIZE && 
        next_horizontal_touch_y >= 0 && 

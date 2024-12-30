@@ -14,6 +14,7 @@
 #include "libft/libft.h"
 #define RED 0x00FF0000
 #define GREEN 0x0000FF00
+#define NUM_TEXTURES 4 // Replace 4 with the actual number of textures in your program
 #define BLUE 0x000000FF
 #define TILE_SIZE 32
 #define WINDOW_WIDTH 800
@@ -27,6 +28,7 @@ typedef struct s_ray
     float ray_angle;
     float wall_hit_x;
     float wall_hit_y;
+    int texture_num;
     int foundHorzWallHit;
     int foundVerticalHit;
     bool was_hit_vertical;
@@ -77,7 +79,7 @@ typedef struct s_img
 {
     void	*img;
 	char	*addr;
-	int		bits_per_pixel;
+	int		 bits_per_pixel;
 	int		line_length;
 	int		endian;
 } t_img;
@@ -98,16 +100,21 @@ typedef struct s_map
     struct s_player player;
     struct s_rgb    floor_rgb;
     struct s_rgb    ceiling_rgb;
+    char    **textures;
 } t_map;
 
 
 typedef struct s_mlx 
 {
-    void *mlx;
-    void *win;
-    t_img img;
-    t_map maps;
-    t_player player;
+    void    *mlx;
+    void    *win;
+    t_img   img;
+    t_map   maps;
+    t_player    player;
+    void    *images[4];
+    int     width[4];
+    int     height[4];
+    int     *add[4];
 } t_mlx  ;
 
 
@@ -150,6 +157,8 @@ void    save_player(t_map *map);
 void print_map(t_map *maps);
 
 // loading textures 
-void load_textures(t_map *map, t_mlx *mlx);
+// void *file_to_xpm(t_mlx *mlx, char *filepath, int index);
+void load_texture(t_mlx *mlx, char *path, int index);
+
 
 #endif

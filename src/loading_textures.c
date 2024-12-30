@@ -1,27 +1,39 @@
 #include "../lib.h"
 
-void load_textures(t_map *map, t_mlx *mlx)
+void free_textures(t_mlx *mlx)
 {
-    map->no_texture = mlx_xpm_file_to_image(mlx->mlx, "textures/Mona_Lisa.png", (int )mlx->player.wall_strip_width, (int)mlx->player.wall_strip_height);
-    map->so_texture = mlx_xpm_file_to_image(mlx->mlx, "textures/Wheat_Field.png", (int )mlx->player.wall_strip_width, (int)mlx->player.wall_strip_height);
-    map->we_texture = mlx_xpm_file_to_image(mlx->mlx, "textures/the_starry_night.png", (int )mlx->player.wall_strip_width, (int)mlx->player.wall_strip_height);
-    map->ea_texture = mlx_xpm_file_to_image(mlx->mlx, "textures/girl_with_a_pearl_earring.png",(int )mlx->player.wall_strip_width, (int)mlx->player.wall_strip_height);
-
-    if (!map->no_texture || !map->so_texture || !map->we_texture || !map->ea_texture)
-    {
-        perror("Failed to load textures");
-        exit(EXIT_FAILURE);
-    }
+    if (mlx->maps.no_texture)
+        mlx_destroy_image(mlx->mlx, mlx->maps.no_texture);
+    if (mlx->maps.so_texture)
+        mlx_destroy_image(mlx->mlx, mlx->maps.so_texture);
+    if (mlx->maps.we_texture)
+        mlx_destroy_image(mlx->mlx, mlx->maps.we_texture);
+    if (mlx->maps.ea_texture)
+        mlx_destroy_image(mlx->mlx, mlx->maps.ea_texture);
 }
-
-void free_textures(t_map *map, t_mlx mlx)
+void load_texture(t_mlx *mlx, char *path, int index)
 {
-    if (map->no_texture)
-        mlx_destroy_image(mlx.mlx, map->no_texture);
-    if (map->so_texture)
-        mlx_destroy_image(mlx.mlx, map->so_texture);
-    if (map->we_texture)
-        mlx_destroy_image(mlx.mlx, map->we_texture);
-    if (map->ea_texture)
-        mlx_destroy_image(mlx.mlx, map->ea_texture);
+    void *img;
+    int width;
+    int height;
+    
+    img = mlx_xpm_file_to_image(mlx->mlx, path, &width, &height);
+    if (!img)
+    {
+        // Handle error more gracefully
+        printf("Error: Texture loading failed for %s\n", path);  // For debugging
+        free_textures(mlx);
+        return ;
+    }
+    mlx->add[index] = (int *)mlx_get_data_addr(img, &mlx->img.bits_per_pixel, 
+                                               &mlx->img.line_length, &mlx->img.endian);
+    mlx->width[index] = width;
+    mlx->height[index] = height;
+    
+    // Check that texture data has been correctly loaded
+    if (!mlx->add[index])
+    {
+        printf("Error: Texture data pointer is null for %s\n", path);
+        free_textures(mlx);
+    }
 }

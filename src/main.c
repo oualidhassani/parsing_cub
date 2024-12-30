@@ -12,7 +12,15 @@ void my_mlx_pixel_put(t_img *img, int x, int y, int color)
 void mlx_initializer(t_mlx *mlx)
 {
     mlx->mlx = mlx_init();
+    
     mlx->win = mlx_new_window(mlx->mlx, WINDOW_WIDTH, WINDOW_HEIGHT, "Purgatory");
+    load_texture(mlx, "textures/Mona_Lisa.xpm", 0);
+    // printf("Address of the first image: %p\n", (void *)mlx->add[0]);
+
+    load_texture(mlx, "textures/Wheat_Field.xpm", 1);
+    load_texture(mlx, "textures/the_starry_night.xpm", 2);
+    load_texture(mlx, "textures/girl_with_a_pearl_earring.xpm", 3);
+
     mlx->img.img = mlx_new_image(mlx->mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
     mlx->img.addr = mlx_get_data_addr(mlx->img.img, &mlx->img.bits_per_pixel
         ,&mlx->img.line_length, &mlx->img.endian);
@@ -41,8 +49,8 @@ void map_calculator(t_map *maps)
     
     maps->width = biggest_len;
     maps->td_map_size = (maps->width * TILE_SIZE);
-    printf("Map dimensions - Width: %d, Height: %d, TD size: %d\n", 
-       maps->width, maps->height, maps->td_map_size);
+    // printf("Map dimensions - Width: %d, Height: %d, TD size: %d\n", 
+    //    maps->width, maps->height, maps->td_map_size);
 }
 
 void draw_wall (t_mlx *mlx, int x, int y)

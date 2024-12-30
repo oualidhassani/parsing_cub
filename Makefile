@@ -2,6 +2,7 @@ SRC = \
     src/main.c \
     src/map.c \
     src/player.c \
+	src/loading_textures.c\
     parsing/parsing_v0.c \
     parsing/parsing_v1.c \
     parsing/parsing_v2.c \
